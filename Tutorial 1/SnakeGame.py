@@ -208,16 +208,6 @@ while True:
     # Snake food
     pygame.draw.rect(game_window, RED, pygame.Rect(game.food_pos[0], game.food_pos[1], 10, 10))
 
-    # Game Over conditions
-    # Getting out of bounds
-    if game.snake_pos[0] < 0 or game.snake_pos[0] > FRAME_SIZE_X-10:
-        game_over(game)
-    if game.snake_pos[1] < 0 or game.snake_pos[1] > FRAME_SIZE_Y-10:
-        game_over(game)
-    # Touching the snake body
-    for block in game.snake_body[1:]:
-        if game.snake_pos[0] == block[0] and game.snake_pos[1] == block[1]:
-            game_over(game)
 
     show_score(game, 1, WHITE, 'consolas', 15)
     # Refresh game screen
