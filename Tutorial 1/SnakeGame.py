@@ -41,6 +41,9 @@ class GameState:
         self.dist_x = self.food_pos[0] - self.snake_body[0][0]
         self.dist_y = self.food_pos[1] - self.snake_body[0][1]
 
+        self.distw_x = min(FRAME_SIZE_X - self.snake_body[0][0], self.snake_body[0][0])
+        self.distw_y = min(FRAME_SIZE_Y - self.snake_body[0][1], self.snake_body[0][1])
+
 # Game Over
 def game_over(game):
     my_font = pygame.font.SysFont('times new roman', 90)
@@ -97,8 +100,13 @@ def isBlocked(game):
     if game.direction == 'RIGHT':
         game.snake_pos[0] += 10
 
+    # Bump itself
     for block in game.snake_body[1:]:
         if game.snake_pos[0] == block[0] and game.snake_pos[1] == block[1]:
+            body_blocked = True
+    # Bump wall
+    if (game.snake_pos[0] == 0 or game.snake_pos[0] == FRAME_SIZE_X
+        or game.snake_pos[1] == 0 or game.snake_pos[1] == FRAME_SIZE_Y):
             body_blocked = True
     return body_blocked
 
@@ -133,6 +141,7 @@ def print_state(game):
     print("Score:", game.score)
 
     print("Distance to food:", game.dist_x, game.dist_y)
+    print("Distance to wall:", game.distw_x, game.distw_y)
 
 # TODO: IMPLEMENT HERE THE NEW INTELLIGENT METHOD
 def print_line_data(game):
