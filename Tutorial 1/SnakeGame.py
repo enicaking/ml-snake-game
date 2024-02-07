@@ -223,4 +223,3 @@ while True:
     # PRINTING STATE
     print_state(game)
 
-    print_state(game)
