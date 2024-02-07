@@ -96,6 +96,7 @@ def isBlocked(game):
         game.snake_pos[0] -= 10
     if game.direction == 'RIGHT':
         game.snake_pos[0] += 10
+
     for block in game.snake_body[1:]:
         if game.snake_pos[0] == block[0] and game.snake_pos[1] == block[1]:
             body_blocked = True
@@ -105,15 +106,19 @@ def isBlocked(game):
 def move_tutorial_1(game):
     change_to = game.direction
     if not isBlocked(game):
-        if game.dist_x != 0:
+        if game.food_pos[0] == game.snake_body[0][0]:
             if game.food_pos[1] < game.snake_body[0][1] and game.direction != 'DOWN':
                 change_to = 'UP'
             if game.food_pos[1] > game.snake_body[0][1] and game.direction != 'UP':
                 change_to = 'DOWN'
-        if game.food_pos[0] < game.snake_body[0][0] and game.direction != 'RIGHT':
-            change_to = 'LEFT'
-        elif game.food_pos[0] > game.snake_body[0][0] and game.direction != 'LEFT':
-            change_to = 'RIGHT'
+
+        else:
+            if game.food_pos[0] < game.snake_body[0][0] and game.direction != 'RIGHT':
+                change_to = 'LEFT'
+            elif game.food_pos[0] > game.snake_body[0][0] and game.direction != 'LEFT':
+                change_to = 'RIGHT'
+
+
     return change_to
 
 
@@ -169,15 +174,6 @@ while True:
     # UNCOMMENT WHEN METHOD IS IMPLEMENTED
     game.direction = move_tutorial_1(game)
 
-    # Moving the snake
-    if game.direction == 'UP':
-        game.snake_pos[1] -= 10
-    if game.direction == 'DOWN':
-        game.snake_pos[1] += 10
-    if game.direction == 'LEFT':
-        game.snake_pos[0] -= 10
-    if game.direction == 'RIGHT':
-        game.snake_pos[0] += 10
 
     # Snake body growing mechanism
     game.snake_body.insert(0, list(game.snake_pos))
@@ -208,6 +204,16 @@ while True:
     # Snake food
     pygame.draw.rect(game_window, RED, pygame.Rect(game.food_pos[0], game.food_pos[1], 10, 10))
 
+    # Game Over conditions
+    # Getting out of bounds
+    if game.snake_pos[0] < 0 or game.snake_pos[0] > FRAME_SIZE_X-10:
+        game_over(game)
+    if game.snake_pos[1] < 0 or game.snake_pos[1] > FRAME_SIZE_Y-10:
+        game_over(game)
+    # Touching the snake body
+    for block in game.snake_body[1:]:
+        if game.snake_pos[0] == block[0] and game.snake_pos[1] == block[1]:
+            game_over(game)
 
     show_score(game, 1, WHITE, 'consolas', 15)
     # Refresh game screen
@@ -215,4 +221,6 @@ while True:
     # Refresh rate
     fps_controller.tick(DIFFICULTY)
     # PRINTING STATE
+    print_state(game)
+
     print_state(game)
