@@ -131,29 +131,41 @@ def loop(game, axis):
 
 def move_tutorial_1(game):
     change_to = game.direction
-
+    snake_moves_head = game.snake_pos
     # if it won't bump any wall or collapse with itself, change direction
     if not isBlocked(game):
         if game.food_pos[0] == game.snake_body[0][0]:
             # food and snake are at the same x coordinate
             if game.food_pos[1] < game.snake_body[0][1] and game.direction != 'DOWN':
                 change_to = 'UP'
+                #snake_moves_head[1] -= 10
 
             elif game.food_pos[1] > game.snake_body[0][1] and game.direction != 'UP':
                 change_to = 'DOWN'
+                #snake_moves_head[1] += 10
 
             else:
                 change_to = loop(game, False)
 
+            #for block in game.snake_body[1:(len(game.snake_body)-1)]:
+                #if snake_moves_head[1] == block[1]:
+                    #change_to = loop(game, False)
+
         else:
             if game.food_pos[0] < game.snake_body[0][0] and game.direction != 'RIGHT':
                 change_to = 'LEFT'
+                #snake_moves_head[0] -= 10
 
             elif game.food_pos[0] > game.snake_body[0][0] and game.direction != 'LEFT':
                 change_to = 'RIGHT'
+                #snake_moves_head[0] += 10
 
             else:
                 change_to = loop(game, True)
+
+            #for block in game.snake_body[1:(len(game.snake_body)-1)]:
+                #if snake_moves_head[0] == block[0]:
+                    #change_to = loop(game, True)
 
     return change_to
 
@@ -227,9 +239,6 @@ while True:
     elif game.direction == 'RIGHT':
         game.snake_pos[0] += 10
 
-    for block in game.snake_body[1:]:
-        if game.snake_pos[0] == block[0] and game.snake_pos[1] == block[1]:
-            body_blocked = True
 
     # Snake body growing mechanism
     game.snake_body.insert(0, list(game.snake_pos))
