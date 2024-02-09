@@ -5,8 +5,7 @@ Last modification in January 2024 by José Carlos Pulido
 Machine Learning Classes - University Carlos III of Madrid
 """
 
-import pygame, sys, time, random
-
+import pygame, sys, time, random, csv
 
 # DIFFICULTY settings
 # Easy      ->  10
@@ -14,7 +13,7 @@ import pygame, sys, time, random
 # Hard      ->  40
 # Harder    ->  60
 # Impossible->  120
-DIFFICULTY = 10
+DIFFICULTY = 100
 
 # Window size
 FRAME_SIZE_X = 480
@@ -27,13 +26,15 @@ RED = pygame.Color(204, 51, 0)
 GREEN = pygame.Color(204, 255, 153)
 BLUE = pygame.Color(0, 51, 102)
 
+
 # GAME STATE CLASS
 class GameState:
     def __init__(self, FRAME_SIZE):
         self.snake_pos = [100, 50]
-        self.snake_body = [[100, 50], [100-10, 50], [100-(2*10), 50]]
+        self.snake_body = [[100, 50], [100 - 10, 50], [100 - (2 * 10), 50]]
         ################# food in limit of frame size -> cannot go there (game_over)
-        self.food_pos = [random.randrange(1, (FRAME_SIZE[0]//10)) * 10, random.randrange(1, (FRAME_SIZE[1]//10)) * 10]
+        self.food_pos = [random.randrange(1, (FRAME_SIZE[0] // 10)) * 10,
+                         random.randrange(1, (FRAME_SIZE[1] // 10)) * 10]
         self.food_spawn = True
         self.direction = 'RIGHT'
         self.change_to = self.direction
@@ -48,7 +49,7 @@ def game_over(game):
     my_font = pygame.font.SysFont('times new roman', 90)
     game_over_surface = my_font.render('YOU DIED', True, WHITE)
     game_over_rect = game_over_surface.get_rect()
-    game_over_rect.midtop = (FRAME_SIZE_X/2, FRAME_SIZE_Y/4)
+    game_over_rect.midtop = (FRAME_SIZE_X / 2, FRAME_SIZE_Y / 4)
     game_window.fill(BLUE)
     game_window.blit(game_over_surface, game_over_rect)
     show_score(game, 0, WHITE, 'times', 20)
@@ -57,17 +58,19 @@ def game_over(game):
     pygame.quit()
     sys.exit()
 
+
 # Score
 def show_score(game, choice, color, font, size):
     score_font = pygame.font.SysFont(font, size)
     score_surface = score_font.render('Score : ' + str(game.score), True, color)
     score_rect = score_surface.get_rect()
     if choice == 1:
-        score_rect.midtop = (FRAME_SIZE_X/8, 15)
+        score_rect.midtop = (FRAME_SIZE_X / 8, 15)
     else:
-        score_rect.midtop = (FRAME_SIZE_X/2, FRAME_SIZE_Y/1.25)
+        score_rect.midtop = (FRAME_SIZE_X / 2, FRAME_SIZE_Y / 1.25)
     game_window.blit(score_surface, score_rect)
     # pygame.display.flip()
+
 
 # Move the snake
 def move_keyboard(game, event):
@@ -98,8 +101,8 @@ def isBlocked(game):
 
     # Bump wall
     if (game.snake_pos[0] == 0 or game.snake_pos[0] == FRAME_SIZE_X
-        or game.snake_pos[1] == 0 or game.snake_pos[1] == FRAME_SIZE_Y):
-            body_blocked = True
+            or game.snake_pos[1] == 0 or game.snake_pos[1] == FRAME_SIZE_Y):
+        body_blocked = True
 
     return body_blocked
 
@@ -110,7 +113,7 @@ def loop(game, axis):
     change_to = game.direction
 
     if axis:
-        #by default it will go down, if that means getting out of bounds it will go up
+        # by default it will go down, if that means getting out of bounds it will go up
         change_to = 'DOWN'
 
         if game.snake_pos[1] == FRAME_SIZE_Y:
@@ -126,18 +129,17 @@ def loop(game, axis):
     return change_to
 
 
-
 def move_tutorial_1(game):
     change_to = game.direction
 
     # if it won't bump any wall or collapse with itself, change direction
     if not isBlocked(game):
         if game.food_pos[0] == game.snake_body[0][0]:
-            #food and snake are at the same x coordinate
+            # food and snake are at the same x coordinate
             if game.food_pos[1] < game.snake_body[0][1] and game.direction != 'DOWN':
                 change_to = 'UP'
 
-            elif game.food_pos[1] > game.snake_body[0][1] and  game.direction != 'UP':
+            elif game.food_pos[1] > game.snake_body[0][1] and game.direction != 'UP':
                 change_to = 'DOWN'
 
             else:
@@ -167,18 +169,20 @@ def print_state(game):
     print("Score:", game.score)
     print("Blocked?", isBlocked(game))
 
-    distw_x = (FRAME_SIZE_X - game.snake_body[0][0], game.snake_body[0][0])
-    distw_y = (FRAME_SIZE_Y - game.snake_body[0][1], game.snake_body[0][1])
-
     print("Distance to food:", game.dist_x, game.dist_y)
-    print("Distance to wall:", distw_x, distw_y)
 
 
 # TODO: IMPLEMENT HERE THE NEW INTELLIGENT METHOD
 def print_line_data(game):
-    '''
-    YOUR CODE HERE
-    '''
+    line_data = [FRAME_SIZE_X, FRAME_SIZE_Y, game.direction,
+                 game.snake_pos[0], game.snake_pos[1], game.snake_body,
+                 game.food_pos[0], game.food_pos[1], game.score,
+                 isBlocked(game), game.dist_x, game.dist_y]
+    with open("C:\\Users\\bucky\\Documents\\UC3M\\YEAR TWO - SPRING\\Machine Learning I\\Tutorial 1\\snakeGame.csv", "a",
+              newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(line_data)
+
 
 # Checks for errors encountered
 check_errors = pygame.init()
@@ -198,7 +202,7 @@ game_window = pygame.display.set_mode((FRAME_SIZE_X, FRAME_SIZE_Y))
 fps_controller = pygame.time.Clock()
 
 # Main logic
-game = GameState((FRAME_SIZE_X,FRAME_SIZE_Y))
+game = GameState((FRAME_SIZE_X, FRAME_SIZE_Y))
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -209,7 +213,7 @@ while True:
             if event.key == pygame.K_ESCAPE:
                 pygame.event.post(pygame.event.Event(pygame.QUIT))
         # CALLING MOVE METHOD
-        #game.direction = move_tutorial_1(game)
+        # game.direction = move_tutorial_1(game)
 
     # UNCOMMENT WHEN METHOD IS IMPLEMENTED
     game.direction = move_tutorial_1(game)
@@ -223,6 +227,10 @@ while True:
     elif game.direction == 'RIGHT':
         game.snake_pos[0] += 10
 
+    for block in game.snake_body[1:]:
+        if game.snake_pos[0] == block[0] and game.snake_pos[1] == block[1]:
+            body_blocked = True
+
     # Snake body growing mechanism
     game.snake_body.insert(0, list(game.snake_pos))
     if game.snake_pos[0] == game.food_pos[0] and game.snake_pos[1] == game.food_pos[1]:
@@ -234,7 +242,7 @@ while True:
 
     # Spawning food on the screen
     if not game.food_spawn:
-        game.food_pos = [random.randrange(1, (FRAME_SIZE_X//10)) * 10, random.randrange(1, (FRAME_SIZE_Y//10)) * 10]
+        game.food_pos = [random.randrange(1, (FRAME_SIZE_X // 10)) * 10, random.randrange(1, (FRAME_SIZE_Y // 10)) * 10]
     game.food_spawn = True
 
     # Calculating distance to the food
@@ -254,9 +262,9 @@ while True:
 
     # Game Over conditions
     # Getting out of bounds
-    if game.snake_pos[0] < 0 or game.snake_pos[0] > FRAME_SIZE_X-10:
+    if game.snake_pos[0] < 0 or game.snake_pos[0] > FRAME_SIZE_X - 10:
         game_over(game)
-    if game.snake_pos[1] < 0 or game.snake_pos[1] > FRAME_SIZE_Y-10:
+    if game.snake_pos[1] < 0 or game.snake_pos[1] > FRAME_SIZE_Y - 10:
         game_over(game)
 
     # Touching the snake body
@@ -269,6 +277,6 @@ while True:
     pygame.display.update()
     # Refresh rate
     fps_controller.tick(DIFFICULTY)
-    # PRINTING STATE
+    # PRINTING STATE AND IN CSV
     print_state(game)
-
+    print_line_data(game)
