@@ -13,7 +13,7 @@ import pygame, sys, time, random, csv
 # Hard      ->  40
 # Harder    ->  60
 # Impossible->  120
-DIFFICULTY = 30
+DIFFICULTY = 40
 
 # Window size
 FRAME_SIZE_X = 480
@@ -35,9 +35,6 @@ class GameState:
         ################# food in limit of frame size -> cannot go there (game_over)
         self.food_pos = [random.randrange(1, (FRAME_SIZE[0] // 10)) * 10,
                          random.randrange(1, (FRAME_SIZE[1] // 10)) * 10]
-        self.food_positions = [[290, 450], [120, 110], [20, 10], [210, 110], [360, 140], [440, 410], [130, 60], [340, 380],
-                    [230, 260], [180, 20], [350, 150], [380, 250], [260, 310], [280, 40]]
-        self.food_pos = [220, 390]
         print('-------------------------------------------------------------------------------new food', self.food_pos  )
         self.food_spawn = True
         self.direction = 'RIGHT'
@@ -46,10 +43,10 @@ class GameState:
         self.score = 0
         self.food_score = 0
 
-        self.dist_x = (self.food_pos[0] - self.snake_body[0][0])/10
-        self.dist_y = (self.food_pos[1] - self.snake_body[0][1])/10
+        self.dist_x = (self.food_pos[0] - self.snake_body[0][0])
+        self.dist_y = (self.food_pos[1] - self.snake_body[0][1])
 
-        self.snake_direction = [True, True, True, True] # U D L R
+        self.snake_direction = [True, True, False, True]  # U D L R
         self.food_direction = [False, True, False, True]
 
 # Game Over
@@ -123,64 +120,82 @@ def move_tutorial_1(game):
     new_body.insert(0, list(new_pos))
     new_body.pop()
 
-    # Restricting based on the wall
-    if new_pos[0] < 0:
-        game.snake_direction[2] = False
-    elif new_pos[0] > FRAME_SIZE_X:
-        game.snake_direction[3] = False
-    elif new_pos[1] < 0:
-        game.snake_direction[0] = False
-    elif new_pos[1] > FRAME_SIZE_Y:
-        game.snake_direction[1] = False
 
     # Restricting based on snake body
     for block in new_body[1:]:
         if new_pos[0] == block[0] and new_pos[1] == block[1]:
-            if game.direction == 'UP':
-                game.snake_direction[0] = False
-            elif game.direction == 'DOWN':
-                game.snake_direction[1] = False
-            elif game.direction == 'LEFT':
-                game.snake_direction[2] = False
-            else:  # RIGHT
-                game.snake_direction[3] = False
-            print('checking bump itself')
+            print('----------------------------------------Potential collapse if we go!!!', game.direction)
+            directioncode = ["UP", "DOWN", "LEFT", "RIGHT"]
+            game.snake_direction[directioncode.index(game.direction)] = False
+            print('----------------------------------------Potential collapse if we go!!!', game.snake_direction)
+
+
+    # Restricting based on the wall
+    if new_pos[0] < 0:
+        game.snake_direction[2] = False
+        game.snake_direction[3] = True
+        if game.snake_direction[0]:
+            return "UP"
+        else:
+            return "DOWN"
+    elif new_pos[0] > FRAME_SIZE_X:
+        game.snake_direction[3] = False
+        game.snake_direction[2] = True
+        if game.snake_direction[0]:
+            return "UP"
+        else:
+            return "DOWN"
+    elif new_pos[1] < 0:
+        game.snake_direction[0] = False
+        game.snake_direction[1] = True
+        if game.snake_direction[2]:
+            return "LEFT"
+        else:
+            return "RIGHT"
+    elif new_pos[1] > FRAME_SIZE_Y:
+        game.snake_direction[1] = False
+        game.snake_direction[0] = True
+        if game.snake_direction[2]:
+            return "LEFT"
+        else:
+            return "RIGHT"
+
+
+
+
 
     # Deciding a direction - REWORK
-    if game.snake_direction[game.food_direction.index(True)]:
-        if game.food_direction.index(True) == 0:
-            change_to = "UP"
-        else:
-            change_to = "DOWN"
+
+    if game.food_pos[0] == game.snake_body[0][0]:
+        if game.snake_direction[game.food_direction.index(True)]:
+            if game.food_direction.index(True) == 0:
+                change_to = "UP"
+            else:
+                change_to = "DOWN"
     elif game.snake_direction[[i for i, n in enumerate(game.food_direction) if n is True][1]]:
         if [i for i, n in enumerate(game.food_direction) if n is True][1] == 2:
             change_to = "LEFT"
         else:
             change_to = "RIGHT"
     else: # Snake cannot move in a direction that the food is at, so we will just move wherever we can
-        wheretogo = game.food_direction.index(True)
-        if wheretogo == 0:
-            change_to = "UP"
-        elif wheretogo == 0:
-            change_to = "DOWN"
-        elif wheretogo == 0:
-            change_to = "LEFT"
-        else:
-            change_to = "RIGHT"
+        print("------------------------------------------------Nowhere to go")
+        directioncode = ["UP", "DOWN", "LEFT", "RIGHT"]
+        change_to = directioncode[game.snake_direction.index(True)]
 
     return change_to
 
 
+
 # PRINTING DATA FROM GAME STATE
 def print_state(game):
-    print("--------GAME STATE--------")
+    #print("--------GAME STATE--------")
     #print("FrameSize:", FRAME_SIZE_X, FRAME_SIZE_Y)
     print("Direction:", game.direction)
-    print("Previous Direction:", game.prev_direction)
+    #print("Previous Direction:", game.prev_direction)
     print("Snake X:", game.snake_pos[0], ", Snake Y:", game.snake_pos[1])
     #print("Snake Body:", game.snake_body)
     print("Snake Body Length:", len(game.snake_body))
-    print("Food X:", game.food_pos[0], ", Food Y:", game.food_pos[1])
+    #print("Food X:", game.food_pos[0], ", Food Y:", game.food_pos[1])
     #print("Score:", game.score)
 
     print("Where can the snake go?:", game.snake_direction)
@@ -308,19 +323,17 @@ while True:
     # Game Over conditions
     # Getting out of bounds
     if game.snake_pos[0] < 0 or game.snake_pos[0] > FRAME_SIZE_X - 10:
-        print('out of bound')
-
+        print('Reason for death: out of bound')
         game_over(game)
     if game.snake_pos[1] < 0 or game.snake_pos[1] > FRAME_SIZE_Y - 10:
-        print('out of bound')
-
+        print('Reason for death: out of bound')
         game_over(game)
 
 
     # Touching the snake body
     for block in game.snake_body[1:]:
         if game.snake_pos[0] == block[0] and game.snake_pos[1] == block[1]:
-            print('collapsed')
+            print('Reason for death: collapsed')
             game_over(game)
 
     show_score(game, 1, WHITE, 'consolas', 15)
