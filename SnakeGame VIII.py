@@ -98,13 +98,13 @@ def move_keyboard(game, event):
 # TODO: IMPLEMENT HERE THE NEW INTELLIGENT METHOD
 
 
-def new_position(new_pos, current_pos):
+def new_position(new_pos, current_direction):
 
-    if current_pos == 'UP':
+    if current_direction == 'UP':
         new_pos[1] -= 10
-    elif current_pos == 'DOWN':
+    elif current_direction == 'DOWN':
         new_pos[1] += 10
-    elif current_pos == 'LEFT':
+    elif current_direction == 'LEFT':
         new_pos[0] -= 10
     else:  # RIGHT
         new_pos[0] += 10
