@@ -3,6 +3,7 @@ Snake Eater
 Made with PyGame
 Last modification in January 2024 by José Carlos Pulido
 Machine Learning Classes - University Carlos III of Madrid
+Assignment completed by Estefany González and Enica King
 """
 
 import pygame, sys, time, random, csv
