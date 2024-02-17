@@ -6,7 +6,7 @@ Machine Learning Classes - University Carlos III of Madrid
 Assignment completed by Estefany González and Enica King
 """
 
-import pygame, sys, time, random, csv
+import pygame, sys, time, random, csv, os
 
 # DIFFICULTY settings
 # Easy      ->  10
@@ -291,16 +291,13 @@ def print_state(game):
     print("Where should the snake go?:", game.favorable_move)
 
 
-# TODO: IMPLEMENT HERE THE NEW INTELLIGENT METHOD
 def print_line_data(game):
-    line_data = [FRAME_SIZE_X, FRAME_SIZE_Y, game.direction,
-                game.snake_pos[0], game.snake_pos[1], len(game.snake_body),
-                game.food_pos[0], game.food_pos[1], game.score, game.food_score,
-                game.snake_direction, game.food_direction, game.favorable_move]
-    with open("C:\\Users\\bucky\\Documents\\UC3M\\YEAR TWO - SPRING\\Machine Learning I\\Tutorial 1\\snakeGame.csv", "a",
-              newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(line_data)
+    line_data = [FRAME_SIZE_X, FRAME_SIZE_Y, game.direction, game.snake_pos[0], game.snake_pos[1],
+                 len(game.snake_body), game.food_pos[0], game.food_pos[1], game.score, game.snake_direction[0],
+                 game.snake_direction[1], game.snake_direction[2], game.snake_direction[3],
+                 game.favorable_move[0], game.favorable_move[1], game.favorable_move[2], game.favorable_move[3]]
+
+    return line_data
 
 
 # Checks for errors encountered
@@ -399,6 +396,22 @@ while True:
     fps_controller.tick(DIFFICULTY)
     # PRINTING STATE AND IN CSV
     print_state(game)
-    print_line_data(game)
+    
+    if not os.path.isfile('output.csv'):
+        file = open('output.csv', "a", newline='')
+        headerList = ['Frame Size X', 'Frame Size Y', 'Direction',
+                      'Head X', 'Head Y', 'Snake Body Length', 'Food Position X', 'Food Position Y',
+                      'Score', 'Possible Move UP','Possible Move DOWN', 'Possible Move LEFT', 'Possible Move RIGHT',
+                      'Favorable Move UP','Favorable Move DOWN', 'Favorable Move LEFT', 'Favorable Move RIGHT' ]
+
+        dw = csv.DictWriter(file, delimiter=',',
+                            fieldnames=headerList)
+        dw.writeheader()
+    else:
+        file = open('output.csv', "a", newline='')
+
+    writer = csv.writer(file)
+    writer.writerow(print_line_data(game))
+    file.close()
 
 
